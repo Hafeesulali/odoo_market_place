@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OdooForge — Custom Modules, Published in 48 Hours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --night:      #060B18;
+  --deep:       #0C1728;
+  --surface:    #111E35;
+  --surface-2:  #172744;
+  --border:     #1E3358;
+  --border-2:   #2A4570;
+  --violet:     #7B2FFF;
+  --violet-dim: rgba(123,47,255,0.13);
+  --violet-glow:rgba(123,47,255,0.35);
+  --coral:      #FF6535;
+  --coral-dim:  rgba(255,101,53,0.12);
+  --ice:        #E8EEFF;
+  --slate:      #7C93BA;
+  --muted:      #4A6280;
+  --white:      #FFFFFF;
+  --green:      #10B981;
+  --green-dim:  rgba(16,185,129,0.12);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+
+body{
+  background:var(--night);
+  color:var(--ice);
+  font-family:'Inter',sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* Grid watermark */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(123,47,255,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(123,47,255,.035) 1px,transparent 1px);
+  background-size:64px 64px;
+  pointer-events:none;
+  z-index:0;
+}
+
+.container{max-width:1160px;margin:0 auto;padding:0 24px;}
+
+/* ── NAVIGATION ─────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;
+  z-index:200;
+  padding:18px 0;
+  background:rgba(6,11,24,.88);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  transition:box-shadow .3s;
+}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;}
+
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo-icon{
+  width:34px;height:34px;
+  background:linear-gradient(135deg,var(--violet) 0%,#B066FF 100%);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;
+  box-shadow:0 4px 16px var(--violet-glow);
+}
+.logo-text{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;color:var(--white);}
+.logo-text em{color:var(--violet);font-style:normal;}
+
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+.nav-links a{color:var(--slate);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+.nav-links a:hover{color:var(--white);}
+
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 22px;border-radius:8px;
+  font-size:14px;font-weight:600;font-family:'Inter',sans-serif;
+  cursor:pointer;text-decoration:none;
+  border:none;transition:all .2s;
+}
+.btn-v{background:var(--violet);color:#fff;}
+.btn-v:hover{background:#9452ff;transform:translateY(-1px);box-shadow:0 8px 24px var(--violet-glow);}
+.btn-c{background:var(--coral);color:#fff;}
+.btn-c:hover{background:#ff7a53;transform:translateY(-2px);box-shadow:0 12px 32px rgba(255,101,53,.4);}
+.btn-o{background:transparent;border:1px solid var(--border-2);color:var(--ice);}
+.btn-o:hover{border-color:var(--violet);color:#B066FF;}
+.btn-lg{padding:14px 30px;font-size:15px;border-radius:10px;}
+
+/* ── HERO ───────────────────────────── */
+.hero{
+  position:relative;
+  min-height:100vh;
+  display:flex;align-items:center;
+  padding:120px 0 60px;
+  overflow:hidden;
+}
+.hero-orb-1{
+  position:absolute;top:-80px;left:50%;transform:translateX(-50%);
+  width:900px;height:420px;
+  background:radial-gradient(ellipse,rgba(123,47,255,.18) 0%,transparent 60%);
+  pointer-events:none;
+}
+.hero-orb-2{
+  position:absolute;bottom:-60px;right:-120px;
+  width:520px;height:280px;
+  background:radial-gradient(ellipse,rgba(255,101,53,.07) 0%,transparent 65%);
+  pointer-events:none;
+}
+
+.hero-inner{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:64px;align-items:center;
+}
+
+.hero-content{}
+
+.pill{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 16px;
+  background:var(--violet-dim);
+  border:1px solid rgba(123,47,255,.28);
+  border-radius:100px;
+  font-size:12px;font-weight:600;
+  color:#B066FF;
+  letter-spacing:.02em;
+  margin-bottom:28px;
+}
+.pill-dot{
+  width:6px;height:6px;
+  background:var(--violet);border-radius:50%;
+  animation:blink 2.2s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.65);}}
+
+.hero-h1{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(40px,5.5vw,72px);
+  font-weight:800;
+  line-height:1.06;
+  color:var(--white);
+  letter-spacing:-.025em;
+  margin-bottom:22px;
+}
+.hero-h1 .grad{
+  background:linear-gradient(120deg,#9452ff 0%,#B066FF 45%,var(--coral) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+.hero-p{
+  font-size:17px;color:var(--slate);line-height:1.75;
+  margin-bottom:36px;max-width:460px;
+}
+
+.hero-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+
+/* Floating module card */
+.hero-visual{position:relative;}
+.mod-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:28px;
+  animation:float 4s ease-in-out infinite;
+  position:relative;
+  overflow:hidden;
+}
+.mod-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--violet),var(--coral));
+}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(-0.5deg);}
+  50%{transform:translateY(-12px) rotate(.5deg);}
+}
+
+.mc-header{
+  display:flex;align-items:center;gap:12px;margin-bottom:20px;
+}
+.mc-dot{width:10px;height:10px;border-radius:50%;}
+.mc-dot:nth-child(1){background:#FF5F57;}
+.mc-dot:nth-child(2){background:#FFBD2E;}
+.mc-dot:nth-child(3){background:#28C840;}
+.mc-title{margin-left:8px;font-size:13px;color:var(--slate);font-family:monospace;}
+
+.mc-body{display:flex;flex-direction:column;gap:12px;}
+.mc-row{display:flex;align-items:center;gap:12px;}
+.mc-label{font-size:12px;color:var(--muted);width:80px;flex-shrink:0;}
+.mc-val{
+  flex:1;padding:8px 12px;
+  background:var(--deep);
+  border:1px solid var(--border);
+  border-radius:6px;
+  font-size:12px;color:var(--ice);
+  font-family:monospace;
+}
+.mc-val.active{border-color:var(--violet);color:#B066FF;}
+.mc-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;
+  background:var(--green-dim);border:1px solid rgba(16,185,129,.25);
+  border-radius:6px;font-size:12px;color:var(--green);
+  margin-top:16px;
+}
+.mc-badge span{
+  width:7px;height:7px;background:var(--green);border-radius:50%;
+  animation:blink 1.5s ease-in-out infinite;
+}
+
+.stat-chips{
+  display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;
+}
+.stat-chip{
+  padding:8px 14px;
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:8px;
+  font-size:13px;color:var(--slate);
+}
+.stat-chip strong{color:var(--white);}
+
+/* Trust bar */
+.trust-bar{
+  position:relative;z-index:1;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:22px 0;margin-top:60px;
+}
+.trust-inner{
+  display:flex;align-items:center;justify-content:center;
+  gap:40px;flex-wrap:wrap;
+}
+.t-item{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--slate);}
+.t-item strong{color:var(--white);font-weight:600;}
+.t-sep{width:1px;height:24px;background:var(--border);}
+
+/* ── SECTION COMMONS ────────────────── */
+.s-label{
+  display:inline-block;
+  font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--violet);margin-bottom:14px;
+}
+.s-title{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(26px,3.4vw,42px);
+  font-weight:700;color:var(--white);
+  line-height:1.14;letter-spacing:-.015em;
+  margin-bottom:14px;
+}
+.s-sub{font-size:16px;color:var(--slate);line-height:1.75;max-width:500px;}
+
+/* ── HOW IT WORKS ───────────────────── */
+.how{padding:96px 0;position:relative;}
+.how-hd{text-align:center;margin-bottom:68px;}
+.how-hd .s-sub{margin:0 auto;}
+
+.steps{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  position:relative;
+}
+.steps-line{
+  position:absolute;
+  top:52px;left:calc(16.5% + 52px);right:calc(16.5% + 52px);
+  height:1px;
+  background:linear-gradient(90deg,var(--violet) 0%,var(--coral) 100%);
+}
+
+.step{padding:0 28px;text-align:center;}
+.step-ico{
+  width:104px;height:104px;margin:0 auto 24px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;
+  position:relative;z-index:1;
+  transition:border-color .3s,box-shadow .3s;
+}
+.step:hover .step-ico{
+  border-color:var(--violet);
+  box-shadow:0 0 0 6px var(--violet-dim);
+}
+.step-h{
+  font-family:'Syne',sans-serif;font-size:19px;font-weight:700;
+  color:var(--white);margin-bottom:10px;
+}
+.step-p{font-size:14px;color:var(--slate);line-height:1.7;}
+.step-tag{
+  display:inline-block;margin-top:14px;
+  padding:4px 12px;border-radius:100px;
+  font-size:11px;font-weight:600;letter-spacing:.03em;
+}
+.tag-v{background:var(--violet-dim);border:1px solid rgba(123,47,255,.22);color:#B066FF;}
+.tag-c{background:var(--coral-dim);border:1px solid rgba(255,101,53,.22);color:var(--coral);}
+.tag-g{background:var(--green-dim);border:1px solid rgba(16,185,129,.22);color:var(--green);}
+
+/* ── FORM SECTION ───────────────────── */
+.form-sec{
+  padding:96px 0;
+  background:linear-gradient(180deg,transparent 0%,rgba(123,47,255,.03) 50%,transparent 100%);
+}
+.form-layout{
+  display:grid;grid-template-columns:1fr 1.9fr;
+  gap:56px;align-items:start;
+}
+
+.form-sidebar{position:sticky;top:96px;}
+.fs-checklist{list-style:none;margin-top:24px;}
+.fs-checklist li{
+  display:flex;align-items:flex-start;gap:11px;
+  padding:14px 0;border-bottom:1px solid var(--border);
+  font-size:14px;color:var(--slate);line-height:1.6;
+}
+.fs-checklist li:last-child{border-bottom:none;}
+.ck{
+  width:19px;height:19px;flex-shrink:0;margin-top:2px;
+  background:var(--green-dim);border:1px solid rgba(16,185,129,.3);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--green);
+}
+
+.chips-label{
+  font-size:11px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--violet);
+  margin:28px 0 12px;display:block;
+}
+.chips{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{
+  padding:5px 11px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:6px;font-size:12px;color:var(--slate);
+  cursor:pointer;transition:all .18s;user-select:none;
+}
+.chip:hover,.chip.on{
+  border-color:var(--violet);color:#B066FF;
+  background:var(--violet-dim);
+}
+
+/* Form card */
+.fc{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:44px;position:relative;overflow:hidden;
+}
+.fc::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--violet),#B066FF 50%,var(--coral));
+}
+.fc-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.fc-sub{font-size:13px;color:var(--slate);margin-bottom:32px;}
+.req-star{color:var(--coral);}
+
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.fg{display:flex;flex-direction:column;gap:7px;}
+.fg.full{grid-column:1/-1;}
+
+label{font-size:12px;font-weight:600;color:var(--ice);letter-spacing:.01em;}
+
+input,select,textarea{
+  width:100%;padding:11px 14px;
+  background:var(--deep);border:1px solid var(--border);
+  border-radius:8px;color:var(--white);
+  font-size:14px;font-family:'Inter',sans-serif;
+  transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;appearance:none;
+}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234A6280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;background-size:15px;
+  padding-right:36px;cursor:pointer;
+}
+select option{background:var(--surface);}
+input::placeholder,textarea::placeholder{color:var(--muted);}
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--violet);
+  box-shadow:0 0 0 3px rgba(123,47,255,.12);
+}
+input.err,select.err,textarea.err{
+  border-color:var(--coral)!important;
+  box-shadow:0 0 0 3px rgba(255,101,53,.1)!important;
+}
+textarea{resize:vertical;min-height:110px;line-height:1.65;}
+
+.hint{font-size:11px;color:var(--muted);margin-top:-3px;}
+
+.fdivider{border:none;border-top:1px solid var(--border);margin:24px 0;}
+
+.ffoot{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:14px;
+}
+.fnote{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+
+.sub-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:13px 32px;
+  background:var(--violet);color:#fff;border:none;
+  border-radius:10px;font-size:15px;font-weight:600;
+  font-family:'Inter',sans-serif;cursor:pointer;
+  transition:all .2s;
+}
+.sub-btn:hover{background:#9452ff;transform:translateY(-2px);box-shadow:0 12px 32px var(--violet-glow);}
+.sub-btn:active{transform:translateY(0);}
+.sub-btn .arr{transition:transform .2s;}
+.sub-btn:hover .arr{transform:translateX(4px);}
+
+/* ── SUCCESS ────────────────────────── */
+.success{display:none;text-align:center;padding:16px;}
+.success.show{display:block;animation:upFade .6s ease forwards;}
+@keyframes upFade{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+
+.s-ico{
+  width:82px;height:82px;margin:0 auto 24px;
+  background:var(--green-dim);border:2px solid var(--green);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:38px;
+  animation:pop .55s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+@keyframes pop{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+.s-h{font-family:'Syne',sans-serif;font-size:27px;font-weight:700;color:var(--white);margin-bottom:10px;}
+.s-p{font-size:15px;color:var(--slate);max-width:420px;margin:0 auto 30px;line-height:1.7;}
+#email-show{color:var(--ice);font-weight:600;}
+
+.timer-box{
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:16px;padding:22px 36px;
+  display:inline-block;margin-bottom:32px;
+}
+.t-label{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.t-clock{
+  font-family:'Syne',sans-serif;font-size:46px;font-weight:700;
+  color:var(--white);letter-spacing:.05em;
+}
+.t-clock em{color:var(--violet);font-style:normal;}
+.t-units{font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:.06em;}
+
+.track{display:flex;flex-direction:column;gap:10px;text-align:left;margin-top:4px;}
+.tr-item{
+  display:flex;align-items:center;gap:14px;
+  padding:13px 18px;
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:10px;
+}
+.tr-ico{
+  width:30px;height:30px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.tri-g{background:var(--green-dim);border:1px solid rgba(16,185,129,.25);}
+.tri-v{background:var(--violet-dim);border:1px solid rgba(123,47,255,.25);}
+.tri-c{background:var(--coral-dim);border:1px solid rgba(255,101,53,.2);}
+.tr-text strong{display:block;font-size:13px;color:var(--ice);font-weight:500;margin-bottom:2px;}
+.tr-text span{font-size:11px;color:var(--muted);}
+
+/* ── CONTACT ────────────────────────── */
+.contact{padding:96px 0;}
+.contact-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:24px;padding:72px 64px;
+  text-align:center;position:relative;overflow:hidden;
+}
+.contact-card::before{
+  content:'';position:absolute;
+  top:-120px;left:-120px;width:400px;height:400px;
+  background:radial-gradient(ellipse,rgba(123,47,255,.07) 0%,transparent 60%);
+  pointer-events:none;
+}
+.contact-card::after{
+  content:'';position:absolute;
+  bottom:-120px;right:-120px;width:400px;height:400px;
+  background:radial-gradient(ellipse,rgba(255,101,53,.06) 0%,transparent 60%);
+  pointer-events:none;
+}
+.contact-h{font-family:'Syne',sans-serif;font-size:38px;font-weight:700;color:var(--white);margin-bottom:14px;}
+.contact-p{font-size:16px;color:var(--slate);max-width:440px;margin:0 auto 36px;line-height:1.75;}
+.contact-row{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;}
+.c-pill{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:13px 22px;
+  background:var(--surface-2);border:1px solid var(--border-2);
+  border-radius:100px;color:var(--ice);
+  text-decoration:none;font-size:14px;font-weight:500;
+  transition:all .2s;
+}
+.c-pill:hover{border-color:var(--violet);color:#B066FF;background:var(--violet-dim);}
+
+/* ── FOOTER ─────────────────────────── */
+footer{border-top:1px solid var(--border);padding:36px 0;}
+.fi{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.fcopy{font-size:13px;color:var(--muted);}
+.flinks{display:flex;gap:22px;list-style:none;}
+.flinks a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;}
+.flinks a:hover{color:var(--slate);}
+
+/* ── SCROLL ANIMATIONS ──────────────── */
+.fi-up{opacity:0;transform:translateY(32px);transition:opacity .7s ease,transform .7s ease;}
+.fi-up.vis{opacity:1;transform:translateY(0);}
+
+/* ── RESPONSIVE ─────────────────────── */
+@media(max-width:960px){
+  .hero-inner{grid-template-columns:1fr;gap:48px;}
+  .hero-visual{max-width:480px;}
+  .form-layout{grid-template-columns:1fr;gap:40px;}
+  .form-sidebar{position:relative;top:auto;}
+  .steps{grid-template-columns:1fr;max-width:380px;margin:0 auto;}
+  .steps-line{display:none;}
+  .step{padding:24px 0;}
+  .contact-card{padding:52px 32px;}
+}
+@media(max-width:640px){
+  .nav-links{display:none;}
+  .fgrid{grid-template-columns:1fr;}
+  .fg.full{grid-column:auto;}
+  .fc{padding:28px 20px;}
+  .ffoot{flex-direction:column;align-items:stretch;}
+  .sub-btn{justify-content:center;}
+  .trust-inner{gap:20px;}
+  .t-sep{display:none;}
+  .contact-h{font-size:26px;}
+  .contact-card{padding:40px 24px;}
+  .t-clock{font-size:36px;}
+  .hero-h1{font-size:36px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ═══════════════════════════════════════════════════════ -->
+<nav>
+  <div class="container nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">⚙️</div>
+      <span class="logo-text">Odoo<em>Forge</em></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#request">Submit Request</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="#request" class="btn btn-v">Get Your Module →</a>
+  </div>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-orb-1"></div>
+  <div class="hero-orb-2"></div>
+  <div class="container" style="position:relative;z-index:1;">
+    <div class="hero-inner">
+
+      <div class="hero-content fi-up">
+        <div class="pill">
+          <span class="pill-dot"></span>
+          Custom Modules · Published in 48 Hours
+        </div>
+        <h1 class="hero-h1">
+          Your Odoo Module,<br>
+          <span class="grad">Built &amp; Live Fast</span>
+        </h1>
+        <p class="hero-p">
+          Tell us what you need. Our certified team builds your custom Odoo module and publishes it directly to the official App Store — start to finish in under two days.
+        </p>
+        <div class="hero-actions">
+          <a href="#request" class="btn btn-c btn-lg">Submit Your Requirements →</a>
+          <a href="#how" class="btn btn-o btn-lg">See How It Works</a>
+        </div>
+      </div>
+
+      <div class="hero-visual fi-up" style="transition-delay:.15s;">
+        <div class="mod-card">
+          <div class="mc-header">
+            <div class="mc-dot"></div><div class="mc-dot"></div><div class="mc-dot"></div>
+            <span class="mc-title">module_request.json</span>
+          </div>
+          <div class="mc-body">
+            <div class="mc-row">
+              <span class="mc-label">module</span>
+              <span class="mc-val active">Advanced Invoice Approval</span>
+            </div>
+            <div class="mc-row">
+              <span class="mc-label">version</span>
+              <span class="mc-val">Odoo 17.0</span>
+            </div>
+            <div class="mc-row">
+              <span class="mc-label">category</span>
+              <span class="mc-val">Accounting</span>
+            </div>
+            <div class="mc-row">
+              <span class="mc-label">status</span>
+              <span class="mc-val" style="color:var(--green);border-color:rgba(16,185,129,.3);">▸ Building…</span>
+            </div>
+          </div>
+          <div class="mc-badge"><span></span> Live on App Store in 47:22:14</div>
+        </div>
+        <div class="stat-chips">
+          <div class="stat-chip"><strong>500+</strong> Modules Published</div>
+          <div class="stat-chip"><strong>4.9★</strong> App Store Rating</div>
+          <div class="stat-chip">Official <strong>Odoo Partner</strong></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="trust-bar fi-up" style="transition-delay:.25s;">
+      <div class="trust-inner">
+        <div class="t-item"><span>✓</span><span><strong>500+</strong> modules published</span></div>
+        <div class="t-sep"></div>
+        <div class="t-item"><span>⭐</span><span><strong>4.9 / 5</strong> average rating</span></div>
+        <div class="t-sep"></div>
+        <div class="t-item"><span>⚡</span><span>Official <strong>Odoo Partner</strong></span></div>
+        <div class="t-sep"></div>
+        <div class="t-item"><span>🛡</span><span><strong>100%</strong> App Store compliant</span></div>
+        <div class="t-sep"></div>
+        <div class="t-item"><span>🔁</span><span><strong>Free</strong> first revision</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS ══════════════════════════════════════════════ -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="how-hd fi-up">
+      <div class="s-label">The Process</div>
+      <h2 class="s-title">Three Steps. Forty-Eight Hours.</h2>
+      <p class="s-sub">No lengthy proposals, no back-and-forth delays. Submit once — we handle the rest.</p>
+    </div>
+
+    <div class="steps fi-up" style="transition-delay:.1s;">
+      <div class="steps-line"></div>
+
+      <div class="step">
+        <div class="step-ico">📋</div>
+        <h3 class="step-h">Submit Requirements</h3>
+        <p class="step-p">Describe your Odoo version, module goal, and specific features. A 5-minute form is all it takes.</p>
+        <span class="step-tag tag-v">Takes 5 minutes</span>
+      </div>
+
+      <div class="step">
+        <div class="step-ico">⚙️</div>
+        <h3 class="step-h">We Build &amp; QA</h3>
+        <p class="step-p">Certified Odoo developers build your module, run automated tests, and prepare it for App Store submission.</p>
+        <span class="step-tag tag-c">Within 48 hours</span>
+      </div>
+
+      <div class="step">
+        <div class="step-ico">🚀</div>
+        <h3 class="step-h">Published &amp; Notified</h3>
+        <p class="step-p">Your module is live on the official Odoo App Store. You receive an email with the direct link the moment it's published.</p>
+        <span class="step-tag tag-g">Instant notification</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ REQUEST FORM ══════════════════════════════════════════════ -->
+<section class="form-sec" id="request">
+  <div class="container">
+    <div class="form-layout">
+
+      <!-- Sidebar -->
+      <div class="form-sidebar fi-up">
+        <div class="s-label">Submit a Request</div>
+        <h2 class="s-title">Tell Us What<br>You Need</h2>
+        <p class="s-sub" style="font-size:15px;">The more detail you provide, the more precisely we build. There are no wrong answers.</p>
+
+        <ul class="fs-checklist">
+          <li><span class="ck">✓</span><span>Supports Odoo 14, 15, 16, 17 &amp; 18</span></li>
+          <li><span class="ck">✓</span><span>Full source code delivered with your module</span></li>
+          <li><span class="ck">✓</span><span>Published to your App Store account or ours</span></li>
+          <li><span class="ck">✓</span><span>One free revision if anything needs adjusting</span></li>
+          <li><span class="ck">✓</span><span>Email the moment your module goes live</span></li>
+          <li><span class="ck">✓</span><span>100% compliant with Odoo App Store guidelines</span></li>
+        </ul>
+
+        <span class="chips-label">Quick-pick a category</span>
+        <div class="chips" id="chips">
+          <span class="chip">Accounting</span>
+          <span class="chip">Inventory</span>
+          <span class="chip">CRM</span>
+          <span class="chip">HR &amp; Payroll</span>
+          <span class="chip">Manufacturing</span>
+          <span class="chip">Sales</span>
+          <span class="chip">Purchase</span>
+          <span class="chip">eCommerce</span>
+          <span class="chip">Project</span>
+          <span class="chip">Helpdesk</span>
+          <span class="chip">Point of Sale</span>
+          <span class="chip">Integration / API</span>
+          <span class="chip">Custom</span>
+        </div>
+      </div>
+
+      <!-- Form Card -->
+      <div class="fi-up" style="min-width:0;transition-delay:.12s;">
+        <div class="fc" id="form-card">
+
+          <!-- ▸ MAIN FORM -->
+          <div id="main-form">
+            <div class="fc-title">Module Request Form</div>
+            <p class="fc-sub">Fields marked <span class="req-star">*</span> are required. The more detail, the better.</p>
+
+            <div class="fgrid">
+              <div class="fg">
+                <label>Full Name <span class="req-star">*</span></label>
+                <input id="f-name" type="text" placeholder="Jane Smith">
+              </div>
+              <div class="fg">
+                <label>Company Name</label>
+                <input id="f-company" type="text" placeholder="Acme Corp">
+              </div>
+              <div class="fg">
+                <label>Work Email <span class="req-star">*</span></label>
+                <input id="f-email" type="email" placeholder="jane@company.com">
+              </div>
+              <div class="fg">
+                <label>Odoo Version <span class="req-star">*</span></label>
+                <select id="f-ver">
+                  <option value="">Select version…</option>
+                  <option>Odoo 18.0</option>
+                  <option>Odoo 17.0</option>
+                  <option>Odoo 16.0</option>
+                  <option>Odoo 15.0</option>
+                  <option>Odoo 14.0</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label>Module Category <span class="req-star">*</span></label>
+                <select id="f-cat">
+                  <option value="">Select category…</option>
+                  <option>Accounting &amp; Finance</option>
+                  <option>CRM &amp; Sales</option>
+                  <option>Human Resources</option>
+                  <option>Inventory &amp; Warehouse</option>
+                  <option>Manufacturing</option>
+                  <option>Project Management</option>
+                  <option>eCommerce &amp; Website</option>
+                  <option>Point of Sale</option>
+                  <option>Helpdesk &amp; Support</option>
+                  <option>Reporting &amp; Analytics</option>
+                  <option>Integration / API</option>
+                  <option>Other / Custom</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label>Module Name <span class="req-star">*</span></label>
+                <input id="f-mname" type="text" placeholder="e.g. Advanced Invoice Approval">
+              </div>
+              <div class="fg full">
+                <label>What problem does this solve? <span class="req-star">*</span></label>
+                <textarea id="f-prob" placeholder="Describe the business challenge and why an Odoo module would help…" rows="3"></textarea>
+              </div>
+              <div class="fg full">
+                <label>Features &amp; Customizations Needed <span class="req-star">*</span></label>
+                <textarea id="f-feat" placeholder="List specific features: new fields, workflows, automated actions, reports, UI changes, external integrations, etc.…" rows="5"></textarea>
+                <p class="hint">The more detail here, the more accurately we scope and build.</p>
+              </div>
+              <div class="fg">
+                <label>Deployment</label>
+                <select id="f-deploy">
+                  <option value="">Select…</option>
+                  <option>Odoo.sh (Cloud)</option>
+                  <option>Odoo Online (SaaS)</option>
+                  <option>On-Premise / Self-Hosted</option>
+                  <option>Not sure yet</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label>Budget Range (Optional)</label>
+                <select id="f-budget">
+                  <option value="">Prefer not to say</option>
+                  <option>Under $500</option>
+                  <option>$500 – $1,500</option>
+                  <option>$1,500 – $5,000</option>
+                  <option>$5,000+</option>
+                </select>
+              </div>
+              <div class="fg full">
+                <label>Anything else we should know?</label>
+                <textarea id="f-extra" placeholder="Reference modules, links to similar tools, mockups, or other context…" rows="3"></textarea>
+              </div>
+            </div>
+
+            <hr class="fdivider">
+
+            <div class="ffoot">
+              <span class="fnote">🔒 Your information is private and never shared</span>
+              <button class="sub-btn" onclick="submitForm()">
+                Submit Request <span class="arr">→</span>
+              </button>
+            </div>
+          </div><!-- /main-form -->
+
+          <!-- ▸ SUCCESS STATE -->
+          <div class="success" id="success-state">
+            <div class="s-ico">✓</div>
+            <h3 class="s-h">Request Received!</h3>
+            <p class="s-p">
+              Your module is now in our build queue. We'll publish it to the Odoo App Store and notify you at <span id="email-show">your email</span> the moment it's live.
+            </p>
+
+            <div class="timer-box">
+              <div class="t-label">Your module will be published in</div>
+              <div class="t-clock" id="countdown"><em>48</em>:00:00</div>
+              <div class="t-units">HOURS &nbsp;·&nbsp; MINUTES &nbsp;·&nbsp; SECONDS</div>
+            </div>
+
+            <div class="track">
+              <div class="tr-item">
+                <div class="tr-ico tri-g">✓</div>
+                <div class="tr-text">
+                  <strong>Requirements received</strong>
+                  <span>Your module brief is now in our system</span>
+                </div>
+              </div>
+              <div class="tr-item">
+                <div class="tr-ico tri-v">⚙️</div>
+                <div class="tr-text">
+                  <strong>Building &amp; QA — in progress</strong>
+                  <span>Our developers are reviewing your specification now</span>
+                </div>
+              </div>
+              <div class="tr-item">
+                <div class="tr-ico tri-c">🚀</div>
+                <div class="tr-text">
+                  <strong>Publishing to Odoo App Store</strong>
+                  <span>You'll receive an email with your live module link</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:28px;">
+              <button class="btn btn-o" onclick="resetForm()">Submit Another Request</button>
+            </div>
+          </div><!-- /success-state -->
+
+        </div><!-- /fc -->
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ═══════════════════════════════════════════════════ -->
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="contact-card fi-up">
+      <div class="s-label">Get in Touch</div>
+      <h2 class="contact-h">Still Have Questions?</h2>
+      <p class="contact-p">
+        Not sure what you need, or want to discuss your Odoo project before submitting? Our team is happy to talk it through.
+      </p>
+      <div class="contact-row">
+        <a href="mailto:hello@odooforge.com" class="c-pill">📧 hello@odooforge.com</a>
+        <a href="https://wa.me/1234567890" class="c-pill">💬 Chat on WhatsApp</a>
+        <a href="#request" class="btn btn-v btn-lg">Submit a Request</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════════════ -->
+<footer>
+  <div class="container fi">
+    <span class="fcopy">© 2025 OdooForge · Built for Odoo businesses, by certified Odoo developers.</span>
+    <ul class="flinks">
+      <li><a href="#">Privacy Policy</a></li>
+      <li><a href="#">Terms of Service</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+/* ── Chip quick-pick ──────────────────────────────────────────── */
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => {
+    c.classList.toggle('on');
+    // Mirror into category dropdown
+    const sel = document.getElementById('f-cat');
+    const active = [...document.querySelectorAll('.chip.on')].map(x => x.textContent.trim());
+    if (active.length && !sel.value) {
+      const map = {
+        'Accounting':'Accounting & Finance','CRM':'CRM & Sales',
+        'HR & Payroll':'Human Resources','Inventory':'Inventory & Warehouse',
+        'Manufacturing':'Manufacturing','Sales':'CRM & Sales',
+        'Purchase':'Inventory & Warehouse','eCommerce':'eCommerce & Website',
+        'Project':'Project Management','Helpdesk':'Helpdesk & Support',
+        'Point of Sale':'Point of Sale','Integration / API':'Integration / API','Custom':'Other / Custom'
+      };
+      const match = map[active[0]];
+      if (match) {
+        for (const opt of sel.options) { if (opt.text === match) { sel.value = opt.value; break; } }
+      }
+    }
+  });
+});
+
+/* ── Form validation & submit ─────────────────────────────────── */
+const REQUIRED = ['f-name','f-email','f-ver','f-cat','f-mname','f-prob','f-feat'];
+
+function submitForm() {
+  let valid = true;
+  REQUIRED.forEach(id => {
+    const el = document.getElementById(id);
+    const v = el.value.trim();
+    if (!v) {
+      el.classList.add('err');
+      el.addEventListener('input', () => el.classList.remove('err'), {once:true});
+      valid = false;
+    }
+  });
+  // Email format
+  const email = document.getElementById('f-email');
+  if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+    email.classList.add('err');
+    valid = false;
+  }
+  if (!valid) {
+    const first = document.querySelector('.err');
+    if (first) first.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  // Show success
+  document.getElementById('email-show').textContent = document.getElementById('f-email').value.trim();
+  document.getElementById('main-form').style.display = 'none';
+  const s = document.getElementById('success-state');
+  s.classList.add('show');
+  startCountdown();
+}
+
+function resetForm() {
+  document.getElementById('main-form').style.display = 'block';
+  document.getElementById('success-state').classList.remove('show');
+  document.querySelectorAll('#main-form input, #main-form select, #main-form textarea').forEach(el => { el.value=''; el.classList.remove('err'); });
+  document.querySelectorAll('.chip.on').forEach(c => c.classList.remove('on'));
+  if (timerID) { clearInterval(timerID); timerID = null; }
+}
+
+/* ── Countdown timer ──────────────────────────────────────────── */
+let timerID = null;
+
+function startCountdown() {
+  if (timerID) clearInterval(timerID);
+  const end = Date.now() + 48 * 3600 * 1000;
+  function tick() {
+    const diff = Math.max(0, end - Date.now());
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('countdown').innerHTML =
+      `<em>${String(h).padStart(2,'0')}</em>:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (diff === 0) clearInterval(timerID);
+  }
+  tick();
+  timerID = setInterval(tick, 1000);
+}
+
+/* ── Scroll reveal ────────────────────────────────────────────── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.08, rootMargin:'0px 0px -40px 0px' });
+document.querySelectorAll('.fi-up').forEach(el => io.observe(el));
+
+/* ── Nav shadow on scroll ─────────────────────────────────────── */
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').style.boxShadow =
+    window.scrollY > 20 ? '0 4px 32px rgba(0,0,0,.4)' : 'none';
+});
+</script>
+
+</body>
+</html>
